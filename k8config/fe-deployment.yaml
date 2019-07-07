@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe-deployment
+  labels:
+    tier: fe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: web-server
+  template:
+    metadata:
+      labels:
+        component: web-server
+    spec:
+      containers:
+        - name: frontend
+          image: corourke/dst-frontend
+          ports:
+            - containerPort: 3000
