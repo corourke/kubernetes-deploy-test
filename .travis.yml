@@ -2,11 +2,33 @@ sudo: required
 language: nodejs
 services:
 - docker
+env:
+  global:
+    - GIT_SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
-- openssl aes-256-cbc -K $encrypted_1fdd192d7838_key -iv $encrypted_1fdd192d7838_iv
-  -in kubernetes-deploy-test-1906-1a5534c038f7.json.enc -out kubernetes-deploy-test-1906-1a5534c038f7.json
-  -d
-- curl https://sdk.cloud.google.com | bash > /dev/null;
-- source $HOME/google-cloud-sdk/path.bash.inc
-- gcloud components update kubectl
-- gcloud auth activate-service-account --key-file
+  # Authenticate to Google Cloud
+  - openssl aes-256-cbc -K $encrypted_1fdd192d7838_key -iv $encrypted_1fdd192d7838_iv
+    -in kubernetes-deploy-test-1906-1a5534c038f7.json.enc -out kubernetes-deploy-test-1906-1a5534c038f7.json
+    -d
+  # Install GCP command line tools
+  - curl https://sdk.cloud.google.com | bash > /dev/null;
+  - source $HOME/google-cloud-sdk/path.bash.inc
+  - gcloud components update kubectl
+  # Configure GCP context
+  - gcloud auth activate-service-account --key-file
+  - gcloud config set project kubernetes-deploy-test-1906
+  - gcloud config set compute/zone us-west1-c
+  - gcloud container clusters get-credentials first-k8-cluster
+  # Build dev container(s) for tests
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t corourke/react-test -f ./frontend/Dockerfile.dev ./frontend
+
+script:
+  - docker run corourke/react-test npm run test -- --coverage
+
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
