@@ -1,22 +1,19 @@
 sudo: required
-language: nodejs
 services:
-- docker
+  - docker
 env:
   global:
     - GIT_SHA=$(git rev-parse HEAD)
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
   # Authenticate to Google Cloud
-  - openssl aes-256-cbc -K $encrypted_1fdd192d7838_key -iv $encrypted_1fdd192d7838_iv
-    -in kubernetes-deploy-test-1906-1a5534c038f7.json.enc -out kubernetes-deploy-test-1906-1a5534c038f7.json
-    -d
+  - openssl aes-256-cbc -K $encrypted_1fdd192d7838_key -iv $encrypted_1fdd192d7838_iv -in kubernetes-deploy-test-1906-1a5534c038f7.json.enc -out kubernetes-deploy-test-1906-1a5534c038f7.json -d
   # Install GCP command line tools
   - curl https://sdk.cloud.google.com | bash > /dev/null;
   - source $HOME/google-cloud-sdk/path.bash.inc
   - gcloud components update kubectl
   # Configure GCP context
-  - gcloud auth activate-service-account --key-file
+  - gcloud auth activate-service-account --key-file kubernetes-deploy-test-1906-1a5534c038f7.json.enc
   - gcloud config set project kubernetes-deploy-test-1906
   - gcloud config set compute/zone us-west1-c
   - gcloud container clusters get-credentials first-k8-cluster
