@@ -13,7 +13,7 @@ before_install:
   - source $HOME/google-cloud-sdk/path.bash.inc
   - gcloud components update kubectl
   # Configure GCP context
-  - gcloud auth activate-service-account --key-file kubernetes-deploy-test-1906-1a5534c038f7.json.enc
+  - gcloud auth activate-service-account --key-file kubernetes-deploy-test-1906-1a5534c038f7.json
   - gcloud config set project kubernetes-deploy-test-1906
   - gcloud config set compute/zone us-west1-c
   - gcloud container clusters get-credentials first-k8-cluster
